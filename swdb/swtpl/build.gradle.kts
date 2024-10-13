@@ -1,5 +1,7 @@
 import g.bs.BuildCount
+import g.bs.NH2Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.net.URI
 
 plugins {
     kotlin("jvm")
@@ -31,7 +33,6 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.withType<Jar> {
-    dependsOn(jarCount)
     from(configurations.runtimeClasspath.get().map {
         if (it.isFile) zipTree(it) else it
     })
@@ -47,4 +48,15 @@ tasks.withType<Jar> {
 
 application {
     mainClass = "g.sw.SwTpl"
+}
+
+tasks.register("nh2Publish") {
+    group = "publish"
+    dependsOn(jarCount)
+    dependsOn(tasks.getByName("jar"))
+    doLast {
+        tasks.getByName("jar").outputs.files.files.forEach {
+            NH2Publish().publish(it, URI("file:///NH2Publish/bin/swtpl.jar"))
+        }
+    }
 }
