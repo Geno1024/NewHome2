@@ -6,4 +6,5 @@ dependencyResolutionManagement {
     }
 }
 
+include(":swdb:dbmgr")
 include(":swdb:swtpl")
