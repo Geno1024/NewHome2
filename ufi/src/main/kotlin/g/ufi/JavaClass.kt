@@ -91,6 +91,8 @@ data class JavaClass(
 
     override fun read(input: InputStream) = JavaClass.read(input)
 
+    fun thisClassName() = (constantPool[(constantPool[thisClass.toInt()] as JavaClass.Constant.Class).nameIndex.toInt()] as JavaClass.Constant.Utf8).toString()
+
     enum class MajorVersion(val major: UShort)
     {
         JAVA_1_0(44U),

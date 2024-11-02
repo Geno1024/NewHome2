@@ -12,6 +12,7 @@ dependencies {
     implementation("org.jetbrains.kotlin", "kotlin-reflect", "2.0.0")
     implementation("org.xerial", "sqlite-jdbc", "3.46.1.3")
 
+    implementation(project(":ufi"))
 }
 
 // <editor-fold desc="Build Count">

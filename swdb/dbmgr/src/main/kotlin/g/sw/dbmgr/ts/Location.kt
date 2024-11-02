@@ -1,5 +1,6 @@
-package g.sw.dbmgr
+package g.sw.dbmgr.ts
 
+import g.sw.dbmgr.Line
 import java.time.LocalDateTime
 
 data class Location(
