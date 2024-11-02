@@ -6,7 +6,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
-import kotlin.system.exitProcess
 
 interface Line
 {
@@ -25,15 +24,15 @@ interface Line
     }
 
     fun parse(line: ResultSet): Line? = this.apply {
-        this::class.memberProperties.map {
-            it as  KMutableProperty1<Line, Any?>
-            it.isAccessible = true
-            val typ = (it.returnType.classifier as KClass<*>).java
-            val col = it.name.replace(Regex("[A-Z]")) { "_${it.value.lowercase()}" }
+        this::class.memberProperties.map { prop ->
+            prop as KMutableProperty1<Line, Any?>
+            prop.isAccessible = true
+            val typ = (prop.returnType.classifier as KClass<*>).java
+            val col = prop.name.replace(Regex("[A-Z]")) { cased -> "_${cased.value.lowercase()}" }
             try
             {
                 val value = line.getObject(col, getSQLiteType(typ))
-                it.set(this, cast(value, typ))
+                prop.set(this, cast(value, typ))
             }
             catch (_: SQLException)
             {

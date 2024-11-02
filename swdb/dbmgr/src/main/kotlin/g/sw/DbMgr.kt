@@ -2,7 +2,7 @@ package g.sw
 
 import g.sw.dbmgr.Action
 import g.sw.dbmgr.ConditionClause
-import g.sw.dbmgr.ts.Location
+import g.sw.dbmgr.Line
 import g.ufi.JavaClass
 import java.io.File
 import java.sql.DriverManager
@@ -66,11 +66,25 @@ object DbMgr
         var row = query["row"]
             ?.split(",")
             ?:listOf("*")
-        var condition = query["condition"]
+        var conditions = query["condition"]
             ?.split(",")
             ?.map {
                 with (it.split(":", limit = 3)) {
-                    Triple(this[0], ConditionClause.parse(this[1]), this[2])
+                    when (size)
+                    {
+                        3 ->
+                        {
+                            Triple(this[0], ConditionClause.parse(this[1]), this[2])
+                        }
+                        2 ->
+                        {
+                            Triple(this[0], ConditionClause.ASSIGN, this[1])
+                        }
+                        else ->
+                        {
+                            Triple(this[0], ConditionClause.NONE, "")
+                        }
+                    }
                 }
             }
             ?:emptyList()
@@ -80,38 +94,45 @@ object DbMgr
             exitProcess(1)
         }
         row = filterRow(clazz, row)
-        condition = filterCondition(clazz, condition)
+        conditions = filterCondition(clazz, conditions)
 
-        val targetString: String
-
-        when (action)
+        val targetString = when (action)
         {
             Action.QUERY ->
             {
-                targetString = "SELECT " +
+                "SELECT " +
                     (row.takeIf(List<*>::isNotEmpty)?.joinToString(", ") ?: "*") +
                     " FROM " +
                     clazz.thisClassName().substringAfter("${DbMgr::class.java.packageName.replace('.', '/')}/dbmgr/ts/") +
-                    (condition.takeIf(List<*>::isNotEmpty)?.joinToString(" AND ", prefix = " WHERE ") { "${it.first}${it.second.tuner(it.third)}" } ?: "")
+                    (conditions.takeIf(List<*>::isNotEmpty)?.joinToString(" AND ", prefix = " WHERE ") { "${it.first}${it.second.tuner(it.third)}" } ?: "")
+            }
+            Action.INSERT ->
+            {
+                "INSERT INTO " +
+                    clazz.thisClassName().substringAfter("${DbMgr::class.java.packageName.replace('.', '/')}/dbmgr/ts/") +
+                    conditions.joinToString(separator = ", ", prefix = "(", postfix = ")", transform = Triple<String, ConditionClause, String>::first) +
+                    " VALUES " +
+                    conditions.joinToString(separator = ", ", prefix = "(", postfix = ")") { condition ->
+                        when ((clazz.constantPool[clazz.fields.find { field ->
+                            (clazz.constantPool[field.nameIndex.toInt()] as JavaClass.Constant.Utf8).toString() == condition.first
+                        }?.descriptorIndex?.toInt()?:clazz.thisClass.toInt()] as JavaClass.Constant.Utf8).toString())
+                        {
+                            "Ljava/lang/String;" -> "'${condition.third}'"
+                            else -> condition.third
+                        }
+                    }
             }
         }
 
         println(targetString)
 
         connection.createStatement().use { statement ->
-            when (action)
-            {
-                Action.QUERY ->
-                {
-
-                }
-            }
-
             statement.execute(targetString)
+            val line = Class.forName(clazz.thisClassName().replace('/', '.')).getConstructor().newInstance() as Line
             statement.resultSet.use { resultSet ->
-                while (resultSet.next())
+                while (resultSet?.next() == true)
                 {
-                    println(Location().parse(resultSet))
+                    println(line.parse(resultSet))
                 }
             }
         }

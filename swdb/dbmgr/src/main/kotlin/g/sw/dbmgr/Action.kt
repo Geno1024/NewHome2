@@ -2,7 +2,8 @@ package g.sw.dbmgr
 
 enum class Action
 {
-    QUERY;
+    QUERY,
+    INSERT;
 
     companion object
     {

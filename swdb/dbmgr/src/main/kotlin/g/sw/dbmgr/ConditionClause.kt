@@ -2,6 +2,7 @@ package g.sw.dbmgr
 
 enum class ConditionClause(val tuner: (String) -> String)
 {
+    NONE({ it }),
     EQ({ " = $it" }),
     GT({ " > $it" }),
     GE({ " >= $it" }),
@@ -9,7 +10,8 @@ enum class ConditionClause(val tuner: (String) -> String)
     LE({ " <= $it" }),
     NE({ " != $it" }),
     EQS({ " = '$it'" }),
-    LIKE({ " LIKE '$it'" });
+    LIKE({ " LIKE '$it'" }),
+    ASSIGN({ "'$it'" });
 
     companion object
     {
