@@ -1,5 +1,6 @@
 package g.sw.dbmgr
 
+import g.ufi.Cron
 import java.sql.ResultSet
 import java.sql.SQLException
 import kotlin.reflect.KClass
@@ -13,13 +14,14 @@ interface Line
     {
         Boolean::class.java -> Integer::class.java
         Int::class.java -> Integer::class.java
+        Cron::class.java -> String::class.java
         else -> type
     }
 
     fun cast(value: Any, type: Class<out Any>): Any = when (type)
     {
-        Boolean::class.java -> value as Integer != 0
-        Int::class.java -> value as Integer
+        Boolean::class.java -> value as Int != 0
+        Cron::class.java -> Cron.read(value as String)
         else -> value
     }
 
