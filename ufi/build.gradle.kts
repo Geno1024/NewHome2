@@ -2,6 +2,7 @@ import g.bs.BuildCount
 import g.bs.NH2Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
+import java.util.jar.Attributes
 
 plugins {
     kotlin("jvm")
@@ -39,7 +40,7 @@ tasks.withType<Jar> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes(
-            "Created-By" to "Geno1024"
+            Attributes.Name.IMPLEMENTATION_VENDOR.toString() to "Geno1024"
         )
     }
 }

@@ -4,6 +4,7 @@ import g.sw.dbmgr.Line
 import g.ufi.Cron
 import java.time.LocalDateTime
 
+@Suppress("unused")
 data class ScheduledTask(
     var id: Int = 0,
     var name: String = "",
