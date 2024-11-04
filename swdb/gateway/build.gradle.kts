@@ -39,6 +39,7 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Jar> {
     from(configurations.runtimeClasspath.get().map {
+        if (!it.exists()) it.writeBytes(byteArrayOf())
         if (it.isFile) zipTree(it) else it
     })
     version = "1.0.${jar.read()}.${run.read()}"

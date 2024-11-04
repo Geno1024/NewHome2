@@ -27,13 +27,15 @@ data class GMRequest(
         }
     }
 
-    override fun write(output: OutputStream) = output.write(toString().toByteArray())
+    override fun write(output: OutputStream) = output.write(toWireString().toByteArray())
 
     override fun read(input: InputStream) = GMRequest.read(input)
 
-    override fun toString() = "$service\n" +
+    fun toWireString() = "$service\n" +
         "${headers.size}\n" +
         headers.entries.joinToString("\n") { "${it.key}: ${it.value}" }
+
+    override fun toString(): String = "$service ${headers.size} ${initiator.name}"
 
     data class GMInitiator(
         var name: String = ""
