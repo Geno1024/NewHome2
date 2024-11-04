@@ -8,6 +8,7 @@ import java.net.HttpURLConnection
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.URI
+import java.time.LocalDateTime
 import kotlin.concurrent.thread
 
 object Gateway
@@ -38,6 +39,7 @@ object Gateway
                 accept().apply income@ {
                     thread worker@ {
                         val request = GMRequest.read(getInputStream())
+                        println("${LocalDateTime.now()} GP $request")
                         request.handleTo(this@income.getOutputStream())
                         close()
                     }
@@ -55,6 +57,7 @@ object Gateway
                     key to values.joinToString("; ")
                 }.toMap().toMutableMap()
                 val request = GMRequest(url, headers, GMRequest.GMInitiator())
+                println("${LocalDateTime.now()} HTTP $request")
                 exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 0)
                 request.handleTo(exchange.responseBody)
                 exchange.close()
