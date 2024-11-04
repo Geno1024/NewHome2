@@ -7,6 +7,7 @@ dependencyResolutionManagement {
 }
 
 include(":swdb:dbmgr")
+include(":swdb:gateway")
 include(":swdb:swtpl")
 
 include(":ufi")
