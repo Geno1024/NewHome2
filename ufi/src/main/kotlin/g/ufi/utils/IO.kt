@@ -12,7 +12,7 @@ fun InputStream.readStringUntil(vararg delim: Char, skipNext: Int = 0) = StringB
     while (true)
     {
         val c = read().toChar()
-        if (c in delim) break else append(c)
+        if ((c in delim) or (c.code == 0xffff)) break else append(c)
     }
     readNBytes(skipNext)
 }.toString()

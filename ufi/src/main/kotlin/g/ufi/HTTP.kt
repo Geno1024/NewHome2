@@ -41,7 +41,7 @@ class HTTP
             )
         }
 
-        override fun toString(): String = "$scheme://$host$path?$query"
+        override fun toString(): String = "$scheme://$host/$path?$query"
     }
 
     enum class Version(val presentation: String)
@@ -207,8 +207,10 @@ class HTTP
         }
 
         override fun read(input: InputStream): Response = with (input) input@ {
+            val version = readStringUntil(' ')
+            if (version.isEmpty()) return Response()
             Response(
-                Version.parse(readStringUntil(' ')),
+                Version.parse(version),
                 readStringUntil(' ').toInt(),
                 readStringUntil('\r', skipNext = 1),
             ).apply {
