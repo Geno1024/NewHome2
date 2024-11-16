@@ -34,15 +34,13 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.withType<Jar> {
-    from(configurations.runtimeClasspath.get().map {
-        if (it.isFile) zipTree(it) else it
-    })
     version = "1.0.${jar.read()}.${run.read()}"
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes(
             Attributes.Name.MAIN_CLASS.toString() to application.mainClass,
-            Attributes.Name.IMPLEMENTATION_VENDOR.toString() to "Geno1024"
+            Attributes.Name.IMPLEMENTATION_VENDOR.toString() to "Geno1024",
+            Attributes.Name.CLASS_PATH.toString() to configurations.runtimeClasspath.get().joinToString(" ") { "file:///NH2Publish/lib/${it.name}" }
         )
     }
 }
@@ -57,7 +55,7 @@ tasks.register("nh2Publish") {
     dependsOn(tasks.getByName("jar"))
     doLast {
         tasks.getByName("jar").outputs.files.files.forEach {
-            NH2Publish().publish(it, URI("file:///NH2Publish/bin/swtpl.jar"))
+            NH2Publish().publish(it, URI("file:///NH2Publish/bin/${project.name}.jar"))
         }
     }
 }

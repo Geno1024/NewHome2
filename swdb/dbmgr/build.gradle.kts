@@ -1,8 +1,10 @@
 import g.bs.BuildCount
+import g.bs.Dependencies
 import g.bs.NH2Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 import java.util.jar.Attributes
+import kotlin.io.path.toPath
 
 plugins {
     kotlin("jvm")
@@ -10,8 +12,8 @@ plugins {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin", "kotlin-reflect", "2.0.0")
-    implementation("org.xerial", "sqlite-jdbc", "3.46.1.3")
+    implementation(Dependencies.KOTLIN_REFLECT)
+    implementation(Dependencies.SQLITE_JDBC)
 
     implementation(project(":ufi"))
 }
@@ -41,15 +43,13 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.withType<Jar> {
-    from(configurations.runtimeClasspath.get().map {
-        if (it.isFile) zipTree(it) else it
-    })
     version = "1.0.${jar.read()}.${run.read()}"
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes(
             Attributes.Name.MAIN_CLASS.toString() to application.mainClass,
-            Attributes.Name.IMPLEMENTATION_VENDOR.toString() to "Geno1024"
+            Attributes.Name.IMPLEMENTATION_VENDOR.toString() to "Geno1024",
+            Attributes.Name.CLASS_PATH.toString() to configurations.runtimeClasspath.get().joinToString(" ") { "file:///NH2Publish/lib/${it.name}" }
         )
     }
 }
@@ -64,7 +64,12 @@ tasks.register("nh2Publish") {
     dependsOn(tasks.getByName("jar"))
     doLast {
         tasks.getByName("jar").outputs.files.files.forEach {
-            NH2Publish().publish(it, URI("file:///NH2Publish/bin/dbmgr.jar"))
+            NH2Publish().publish(it, URI("file:///NH2Publish/bin/${project.name}.jar"))
+        }
+        configurations.runtimeClasspath.get().files.filter {
+            it.canonicalPath.contains(".gradle")
+        }.forEach { file ->
+            file.copyTo(URI("file:///NH2Publish/lib/${file.name}").toPath().toFile(), true)
         }
     }
 }

@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="NH2 Republish All" type="CompoundRunConfigurationType">
+    <toRun name="NH2 [nh2PublishKotlinStdlib]" type="GradleRunConfiguration" />
+    <toRun name="NH2:swdb:dbmgr [nh2Publish]" type="GradleRunConfiguration" />
+    <toRun name="NH2:swdb:gateway [nh2Publish]" type="GradleRunConfiguration" />
+    <toRun name="NH2:swdb:swtpl [nh2Publish]" type="GradleRunConfiguration" />
+    <toRun name="NH2:ufi [nh2Publish]" type="GradleRunConfiguration" />
+    <method v="2" />
+  </configuration>
+</component>
